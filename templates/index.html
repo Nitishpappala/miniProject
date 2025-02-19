@@ -28,130 +28,51 @@
             <div class="feature-grid mb-4">
               <div class="feature-item">
                 <label class="form-label">PRN (Pseudo Random Number)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="PRN"
-                  value="{{ request.form['PRN'] if 'PRN' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="PRN" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">DO (Doppler Offset)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="DO"
-                  value="{{ request.form['DO'] if 'DO' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="DO" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">PD (Pseudorange)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="PD"
-                  value="{{ request.form['PD'] if 'PD' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="PD" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">CP (Carrier Phase)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="CP"
-                  value="{{ request.form['CP'] if 'CP' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="CP" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">EC (Error Code)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="EC"
-                  value="{{ request.form['EC'] if 'EC' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="EC" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">LC (Lock Count)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="LC"
-                  value="{{ request.form['LC'] if 'LC' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="LC" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">PC (Phase Count)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="PC"
-                  value="{{ request.form['PC'] if 'PC' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="PC" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">PIP (Phase Integer Part)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="PIP"
-                  value="{{ request.form['PIP'] if 'PIP' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="PIP" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">PQP (Phase Quality Part)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="PQP"
-                  value="{{ request.form['PQP'] if 'PQP' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="PQP" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">TCD (Time Count Delta)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="TCD"
-                  value="{{ request.form['TCD'] if 'TCD' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="TCD" required />
               </div>
               <div class="feature-item">
                 <label class="form-label">CN0 (Carrier-to-Noise Ratio)</label>
-                <input
-                  type="number"
-                  step="any"
-                  class="form-control"
-                  name="CN0"
-                  value="{{ request.form['CN0'] if 'CN0' in request.form else '' }}"
-                  required
-                />
+                <input type="number" step="any" class="form-control" name="CN0" required />
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">
-              Detect Spoofing
-            </button>
+            <button type="submit" class="btn btn-primary w-100">Detect Spoofing</button>
           </form>
 
           {% if prediction_text %}

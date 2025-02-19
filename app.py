@@ -15,18 +15,16 @@ scaler = joblib.load('scaler.pkl')
 def engineer_features(input_data):
     """Engineer features from input data"""
     df = pd.DataFrame([input_data])
-    
-    # Calculate derived features
-    df['CP_diff'] = 0  # Set to 0 for single prediction
-    df['CP_consistency'] = 0  # Set to 0 for single prediction
-    df['signal_quality'] = df['CN0']  # For single prediction, use CN0 directly
+
+    df['CP_diff'] = 0
+    df['CP_consistency'] = 0
+    df['signal_quality'] = df['CN0']
     df['PC_PIP_ratio'] = df['PC'] / df['PIP']
     df['EC_LC_ratio'] = df['EC'] / df['LC']
-    df['CP_rate'] = 0  # Set to 0 for single prediction
-    df['PD_rate'] = 0  # Set to 0 for single prediction
-    df['quality_score'] = ((df['CN0'] >= 45.0) & 
-                          (np.abs(df['PC'] - df['PIP']) < 1000.0)).astype(int)
-    
+    df['CP_rate'] = 0
+    df['PD_rate'] = 0
+    df['quality_score'] = ((df['CN0'] >= 45.0) & (np.abs(df['PC'] - df['PIP']) < 1000.0)).astype(int)
+
     return df
 
 @app.route('/')
@@ -37,7 +35,6 @@ def home():
 def predict():
     if request.method == 'POST':
         try:
-            # Collect feature values
             input_features = {
                 'PRN': float(request.form['PRN']),
                 'DO': float(request.form['DO']),
@@ -51,46 +48,39 @@ def predict():
                 'TCD': float(request.form['TCD']),
                 'CN0': float(request.form['CN0'])
             }
-            
-            # Engineer features
+
             df_processed = engineer_features(input_features)
-            
-            # Ensure correct feature order
+
             features = ['PRN', 'DO', 'PD', 'CP', 'EC', 'LC', 'PC', 'PIP', 'PQP', 'TCD', 'CN0',
-                       'CP_consistency', 'signal_quality', 'PC_PIP_ratio', 'EC_LC_ratio',
-                       'CP_rate', 'PD_rate', 'quality_score']
-            
-            # Scale features
+                        'CP_consistency', 'signal_quality', 'PC_PIP_ratio', 'EC_LC_ratio',
+                        'CP_rate', 'PD_rate', 'quality_score']
+
             features_scaled = scaler.transform(df_processed[features])
-            
-            # Convert to DMatrix for XGBoost
+
             dtest = xgb.DMatrix(features_scaled)
-            
-            # Get prediction probabilities
             pred_probs = model.predict(dtest)
             prediction = np.argmax(pred_probs[0])
-            
-            # Map predictions to labels
+
             labels = {
                 0: "Authentic GPS Signal (Unspoofed)",
                 1: "Spoofed GPS Signal (Type 1)",
                 2: "Spoofed GPS Signal (Type 2)",
                 3: "Spoofed GPS Signal (Type 3)"
             }
-            
+
             result = labels.get(prediction, f"Unknown Prediction (Raw Output: {prediction})")
             confidence = float(pred_probs[0][prediction]) * 100
-            
+
             return render_template('index.html', 
-                                 prediction_text=f'{result}',
-                                 confidence=f'Confidence: {confidence:.2f}%')
-            
+                                   prediction_text=f'{result}',
+                                   confidence=f'Confidence: {confidence:.2f}%')
+
         except ValueError:
             return render_template('index.html', 
-                                 prediction_text="Invalid input! Please enter numerical values.")
+                                   prediction_text="Invalid input! Please enter numerical values.")
         except Exception as e:
             return render_template('index.html', 
-                                 prediction_text=f"An error occurred: {str(e)}")
+                                   prediction_text=f"An error occurred: {str(e)}")
 
 if __name__ == '__main__':
     app.run(debug=True)
