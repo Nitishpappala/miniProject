@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request
 import xgboost as xgb
 import numpy as np
@@ -11,6 +12,21 @@ app = Flask(__name__)
 model = xgb.Booster()
 model.load_model('xgboost_gps_spoofing_model.json')
 scaler = joblib.load('scaler.pkl')
+
+# Define expected value ranges for validation
+VALID_RANGES = {
+    'PRN': (1, 32),
+    'DO': (-4000000, 4000),
+    'PD': (173687.0, 173687.3),
+    'CP': (0, 1e10),
+    'EC': (0, 1e10),
+    'LC': (0, 1e10),
+    'PC': (0, 1e10),
+    'PIP': (1, 1e10),
+    'PQP': (0, 1e10),
+    'TCD': (0, 1e10),
+    'CN0': (10, 60)
+}
 
 def engineer_features(input_data):
     """Engineer features from input data"""
@@ -35,20 +51,23 @@ def home():
 def predict():
     if request.method == 'POST':
         try:
+            # Parse form inputs
             input_features = {
-                'PRN': float(request.form['PRN']),
-                'DO': float(request.form['DO']),
-                'PD': float(request.form['PD']),
-                'CP': float(request.form['CP']),
-                'EC': float(request.form['EC']),
-                'LC': float(request.form['LC']),
-                'PC': float(request.form['PC']),
-                'PIP': float(request.form['PIP']),
-                'PQP': float(request.form['PQP']),
-                'TCD': float(request.form['TCD']),
-                'CN0': float(request.form['CN0'])
+                key: float(request.form[key]) for key in VALID_RANGES
             }
 
+            # Validate ranges
+            out_of_range = []
+            for key, val in input_features.items():
+                low, high = VALID_RANGES[key]
+                if not (low <= val <= high):
+                    out_of_range.append(f"{key}: {val} (Expected: {low}–{high})")
+
+            if out_of_range:
+                message = "⚠️ The following values are out of expected range:\n" + "\n".join(out_of_range)
+                return render_template('index.html', prediction_text=message)
+
+            # Feature engineering
             df_processed = engineer_features(input_features)
 
             features = ['PRN', 'DO', 'PD', 'CP', 'EC', 'LC', 'PC', 'PIP', 'PQP', 'TCD', 'CN0',
@@ -56,8 +75,9 @@ def predict():
                         'CP_rate', 'PD_rate', 'quality_score']
 
             features_scaled = scaler.transform(df_processed[features])
-
             dtest = xgb.DMatrix(features_scaled)
+
+            # Predict
             pred_probs = model.predict(dtest)
             prediction = np.argmax(pred_probs[0])
 
